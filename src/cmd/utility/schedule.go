@@ -38,7 +38,8 @@ var schedule = &command.Command{
 		command.NewUserQuestion(ctx).
 			SetQuestion("Every Duration?", &duration).
 			CaptureMediaQuestion("Please send/reply a media message", &captured).
-			Exec()
+			WithOkEmoji().
+			ExecWithParser()
 
 		timeDuration, err := str2duration.ParseDuration(duration)
 		if err != nil {

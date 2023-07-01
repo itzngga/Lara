@@ -23,6 +23,8 @@ func main() {
 		LogLevel:                    "INFO",
 		WithSqlDB:                   bunDB.DB,
 		WithCommandLog:              true,
+		AllowFromGroup:              true,
+		AllowFromPrivate:            true,
 		CommandResponseCacheTimeout: time.Minute * 15,
 		SendMessageTimeout:          time.Second * 15,
 	}

@@ -50,7 +50,7 @@ func StickerVideo(ctx *command.RunFuncContext, video *waProto.VideoMessage) *waP
 		qValue = 8
 	}
 
-	resultData := cli.ExecPipeline("ffmpeg", data,
+	resultData, err := cli.ExecPipeline("ffmpeg", data,
 		"-y", "-hide_banner", "-loglevel", "panic",
 		"-i", "pipe:0",
 		"-filter:v", "fps=fps=15",
@@ -63,6 +63,9 @@ func StickerVideo(ctx *command.RunFuncContext, video *waProto.VideoMessage) *waP
 		"-f", "webp",
 		"pipe:1",
 	)
+	if err != nil {
+		return ctx.GenerateReplyMessage("error: " + err.Error())
+	}
 
 	ctx.SendReplyMessage(resultData)
 	return nil
@@ -74,7 +77,7 @@ func StickerImage(ctx *command.RunFuncContext, img *waProto.ImageMessage) *waPro
 		return nil
 	}
 
-	resultData := cli.ExecPipeline("ffmpeg", data,
+	resultData, err := cli.ExecPipeline("ffmpeg", data,
 		"-y", "-hide_banner", "-loglevel", "panic",
 		"-i", "pipe:0",
 		"-f", "webp",
@@ -82,6 +85,10 @@ func StickerImage(ctx *command.RunFuncContext, img *waProto.ImageMessage) *waPro
 		"-preset", "picture",
 		"pipe:1",
 	)
+
+	if err != nil {
+		return ctx.GenerateReplyMessage("error: " + err.Error())
+	}
 
 	ctx.SendReplyMessage(resultData)
 	return nil

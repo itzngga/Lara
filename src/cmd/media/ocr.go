@@ -24,22 +24,25 @@ var ocr = &command.Command{
 				SetQuestion("Please select a language", &lang).
 				SetQuestion("Please select a psm", &psm).
 				CaptureMediaQuestion("Please send/reply a media message", &msg).
-				Exec()
+				WithOkEmoji().
+				ExecWithParser()
 		}
 
 		if lang == "" || psm == "" {
 			command.NewUserQuestion(ctx).
 				SetQuestion("Please select a language", &lang).
 				SetQuestion("Please select a psm", &psm).
-				Exec()
+				WithOkEmoji().
+				ExecWithParser()
 		}
 
 		result, err := ctx.DownloadMessage(msg, false)
 		if err != nil {
 			return ctx.GenerateReplyMessage("error: no downloadable message")
 		}
-		res := cli.ExecPipeline("tesseract", result, "stdin", "stdout", "-l", lang, "--psm", psm)
-		if res == nil {
+
+		res, err := cli.ExecPipeline("tesseract", result, "stdin", "stdout", "-l", lang, "--psm", psm)
+		if res == nil || err != nil {
 			return ctx.GenerateReplyMessage("error: no response")
 		}
 

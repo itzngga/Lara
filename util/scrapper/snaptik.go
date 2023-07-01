@@ -2,16 +2,11 @@ package scrapper
 
 import (
 	"bytes"
-	_ "embed"
 	browser "github.com/EDDYCJY/fake-useragent"
 	"github.com/PuerkitoBio/goquery"
-	"github.com/dop251/goja"
 	"github.com/go-resty/resty/v2"
 	"strings"
 )
-
-//go:embed snap.js
-var snapJS []byte
 
 type SnaptikResponse struct {
 	Username    string   `json:"username"`
@@ -20,7 +15,7 @@ type SnaptikResponse struct {
 	ImageUrl    []string `json:"image_url"`
 }
 
-func (scrapper *Scrapper) GetSnaptik(tiktok string) (response SnaptikResponse, err error) {
+func GetSnaptik(tiktok string) (response SnaptikResponse, err error) {
 	defer TimeElapsed("Scrap Snaptik")()
 
 	client := resty.New()
@@ -69,19 +64,11 @@ func (scrapper *Scrapper) GetSnaptik(tiktok string) (response SnaptikResponse, e
 
 	defer resp.RawBody().Close()
 
-	vm := goja.New()
-	_, err = vm.RunString(string(snapJS))
+	result, err := DecodeSnap(resp.String())
 	if err != nil {
 		return response, err
 	}
 
-	var fn func(string) string
-	err = vm.ExportTo(vm.Get("Decode"), &fn)
-	if err != nil {
-		return response, err
-	}
-
-	result := fn(resp.String())
 	html := innerHtml.FindStringSubmatch(result)[1]
 	parsedHtml := strings.ReplaceAll(html, `\"`, "")
 

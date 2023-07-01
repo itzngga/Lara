@@ -4,7 +4,6 @@ import (
 	"bytes"
 	browser "github.com/EDDYCJY/fake-useragent"
 	"github.com/PuerkitoBio/goquery"
-	"github.com/dop251/goja"
 	"strings"
 )
 
@@ -14,10 +13,10 @@ type SnapInstaResponse struct {
 	ResultMedia []string `json:"result_media"`
 }
 
-func (scrapper *Scrapper) GetSnapInsta(instagram string) (response SnapInstaResponse, err error) {
+func GetSnapInsta(instagram string) (response SnapInstaResponse, err error) {
 	defer TimeElapsed("Scrap SnapInsta")()
 
-	client := scrapper.NewCloudflareBypass()
+	client := NewCloudflareBypass()
 	resp, err := client.R().
 		SetFormData(map[string]string{
 			"url":    instagram,
@@ -35,19 +34,11 @@ func (scrapper *Scrapper) GetSnapInsta(instagram string) (response SnapInstaResp
 
 	defer resp.RawBody().Close()
 
-	vm := goja.New()
-	_, err = vm.RunString(string(snapJS))
+	result, err := DecodeSnap(resp.String())
 	if err != nil {
 		return response, err
 	}
 
-	var fn func(string) string
-	err = vm.ExportTo(vm.Get("Decode"), &fn)
-	if err != nil {
-		return response, err
-	}
-
-	result := fn(resp.String())
 	html := innerHtml.FindStringSubmatch(result)[1]
 	parsedHtml := strings.ReplaceAll(html, `\"`, "")
 

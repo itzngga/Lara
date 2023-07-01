@@ -17,7 +17,7 @@ type GetSnapTwitterResponse struct {
 	MediaUrl    string `json:"media_url"`
 }
 
-func (scrapper *Scrapper) GetSnapTwitter(requiredUrl string) (response any, err error) {
+func GetSnapTwitter(requiredUrl string) (response GetSnapTwitterResponse, err error) {
 	defer TimeElapsed("SnapTwitter")()
 
 	client := resty.New()
@@ -64,7 +64,7 @@ func (scrapper *Scrapper) GetSnapTwitter(requiredUrl string) (response any, err 
 	var result = map[string]interface{}{}
 	err = json.Unmarshal(resp.Body(), &result)
 	if err != nil {
-		return result, err
+		return response, err
 	}
 
 	if result["error"] != "false" {

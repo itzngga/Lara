@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	browser "github.com/EDDYCJY/fake-useragent"
 	"github.com/PuerkitoBio/goquery"
-	"github.com/dop251/goja"
 	"strings"
 )
 
@@ -23,8 +22,8 @@ type SnapSaveRenderResponse struct {
 	} `json:"data"`
 }
 
-func (scrapper *Scrapper) GetRenderSnapSave(token string) (string, error) {
-	client := scrapper.NewCloudflareBypass()
+func GetRenderSnapSave(token string) (string, error) {
+	client := NewCloudflareBypass()
 	resp, err := client.R().
 		SetQueryParam("token", token).
 		SetHeader("User-Agent", browser.Firefox()).
@@ -44,19 +43,19 @@ func (scrapper *Scrapper) GetRenderSnapSave(token string) (string, error) {
 
 	if result.Status == 1 {
 		if result.Data.Progress != 100 {
-			return scrapper.GetRenderSnapSave(token)
+			return GetRenderSnapSave(token)
 		} else {
 			return result.Data.FilePath, nil
 		}
 	} else {
-		return scrapper.GetRenderSnapSave(token)
+		return GetRenderSnapSave(token)
 	}
 }
 
-func (scrapper *Scrapper) GetSnapSave(requiredUrl string) (response []SnapSaveResponse, err error) {
+func GetSnapSave(requiredUrl string) (response []SnapSaveResponse, err error) {
 	defer TimeElapsed("Scrap SnapSave")()
 
-	client := scrapper.NewCloudflareBypass()
+	client := NewCloudflareBypass()
 	resp, err := client.R().
 		SetFormData(map[string]string{
 			"url":    requiredUrl,
@@ -73,19 +72,11 @@ func (scrapper *Scrapper) GetSnapSave(requiredUrl string) (response []SnapSaveRe
 
 	defer resp.RawBody().Close()
 
-	vm := goja.New()
-	_, err = vm.RunString(string(snapJS))
+	result, err := DecodeSnap(resp.String())
 	if err != nil {
 		return response, err
 	}
 
-	var fn func(string) string
-	err = vm.ExportTo(vm.Get("Decode"), &fn)
-	if err != nil {
-		return response, err
-	}
-
-	result := fn(resp.String())
 	html := innerHtml.FindStringSubmatch(result)[1]
 	parsedHtml := strings.ReplaceAll(html, `\"`, "")
 
