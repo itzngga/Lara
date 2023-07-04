@@ -11,7 +11,7 @@ type reminderRepository struct {
 }
 
 func (repository reminderRepository) InsertOrUpdateReminder(reminderEntity entity.ReminderEntity) error {
-	var db = conf.NewSqliteDB("")
+	var db = conf.NewSqliteDB()
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*15)
 	defer cancel()
@@ -27,7 +27,7 @@ func (repository reminderRepository) InsertOrUpdateReminder(reminderEntity entit
 
 func (repository reminderRepository) GetAllReminders() ([]entity.ReminderEntity, error) {
 	var list = make([]entity.ReminderEntity, 0)
-	var db = conf.NewSqliteDB("")
+	var db = conf.NewSqliteDB()
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*15)
 	defer cancel()

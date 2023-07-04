@@ -1,13 +1,15 @@
 package media
 
 import (
-	"fmt"
+	"bytes"
 	"github.com/itzngga/Lara/src/cmd/constant"
 	"github.com/itzngga/Roxy/command"
 	"github.com/itzngga/Roxy/embed"
 	"github.com/itzngga/Roxy/util"
 	"github.com/itzngga/Roxy/util/cli"
+	cmdchain "github.com/rainu/go-command-chain"
 	waProto "go.mau.fi/whatsmeow/binary/proto"
+	"os"
 )
 
 func init() {
@@ -29,37 +31,24 @@ var sticker = &command.Command{
 		} else if util.ParseQuotedMessage(ctx.Message).GetVideoMessage() != nil {
 			return StickerVideo(ctx, util.ParseQuotedMessage(ctx.Message).GetVideoMessage())
 		}
-		return ctx.GenerateReplyMessage("Invalid Sticker Action")
+		return ctx.GenerateReplyMessage("error: unexpected action")
 	},
 }
 
 func StickerVideo(ctx *command.RunFuncContext, video *waProto.VideoMessage) *waProto.Message {
 	data, err := ctx.Client.Download(video)
 	if err != nil {
-		fmt.Printf("Failed to download video: %v\n", err)
-		return nil
-	}
-
-	var qValue int
-	switch dataLen := len(data); {
-	case dataLen < 300000:
-		qValue = 25
-	case dataLen < 400000:
-		qValue = 15
-	default:
-		qValue = 8
+		return ctx.GenerateReplyMessage("error: " + err.Error())
 	}
 
 	resultData, err := cli.ExecPipeline("ffmpeg", data,
-		"-y", "-hide_banner", "-loglevel", "panic",
-		"-i", "pipe:0",
-		"-filter:v", "fps=fps=15",
-		"-compression_level", "0",
-		"-q:v", fmt.Sprintf("%d", qValue),
-		"-loop", "0",
-		"-preset", "picture",
-		"-an", "-vsync", "0",
-		"-s", "512:512",
+		"-y", "-hide_banner", "-loglevel", "error",
+		"-i", "pipe:0", "-f", "mp4",
+		"-ss", "00:00:00", "-t", "00:00:15",
+		"-vf", "fps=10,scale=720:-1:flags=lanczos:force_original_aspect_ratio=increase,crop=512:512,pad=512:512:(ow-iw)/2:(oh-ih)/2:color=#00000000,setsar=1",
+		"-compression_level", "6",
+		"-q:v", "60", "-loop", "0",
+		"-preset", "picture", "-an", "-fps_mode", "auto",
 		"-f", "webp",
 		"pipe:1",
 	)
@@ -67,29 +56,37 @@ func StickerVideo(ctx *command.RunFuncContext, video *waProto.VideoMessage) *waP
 		return ctx.GenerateReplyMessage("error: " + err.Error())
 	}
 
-	ctx.SendReplyMessage(resultData)
-	return nil
+	defer func() {
+		data = nil
+		resultData = nil
+	}()
+
+	return ctx.GenerateReplyMessage(resultData)
 }
 func StickerImage(ctx *command.RunFuncContext, img *waProto.ImageMessage) *waProto.Message {
 	data, err := ctx.Client.Download(img)
 	if err != nil {
-		fmt.Printf("Failed to download image: %v\n", err)
-		return nil
+		return ctx.GenerateReplyMessage("error: " + err.Error())
 	}
 
-	resultData, err := cli.ExecPipeline("ffmpeg", data,
-		"-y", "-hide_banner", "-loglevel", "panic",
-		"-i", "pipe:0",
-		"-f", "webp",
-		"-s", "512:512",
-		"-preset", "picture",
-		"pipe:1",
-	)
+	reader := bytes.NewReader(data)
+	writer := bytes.NewBuffer(nil)
 
+	defer func() {
+		reader = nil
+		writer = nil
+		data = nil
+	}()
+
+	err = cmdchain.Builder().
+		Join("convert", "-", "-resize", "512x512", "-background", "black", "-compose", "Copy", "-gravity", "center", "-extent", "512x512", "-quality", "100", "-").
+		WithInjections(reader).ForwardError().
+		Join("cwebp", "-quiet", "-mt", "-exact", "-q", "100", "-m", "6", "-alpha_q", "100", "-o", "-", "--", "-").
+		WithOutputForks(writer).WithErrorForks(os.Stderr).
+		Finalize().WithError(os.Stderr).Run()
 	if err != nil {
 		return ctx.GenerateReplyMessage("error: " + err.Error())
 	}
 
-	ctx.SendReplyMessage(resultData)
-	return nil
+	return ctx.GenerateReplyMessage(writer.Bytes())
 }

@@ -8,17 +8,18 @@ import (
 	"github.com/uptrace/bun"
 	"github.com/uptrace/bun/dialect/sqlitedialect"
 	"github.com/uptrace/bun/driver/sqliteshim"
+	"os"
 	"time"
 )
 
 var sqliteDB *bun.DB
 
-func NewSqliteDB(dbName string) *bun.DB {
+func NewSqliteDB() *bun.DB {
 	if sqliteDB != nil {
 		return sqliteDB
 	}
 
-	sqldb, err := sql.Open(sqliteshim.ShimName, fmt.Sprintf("file:%s?_foreign_keys=on", dbName))
+	sqldb, err := sql.Open(sqliteshim.ShimName, fmt.Sprintf("file:%s?_foreign_keys=on", os.Getenv("SQLITE_FILE")))
 	if err != nil {
 		fmt.Println(err)
 		return nil

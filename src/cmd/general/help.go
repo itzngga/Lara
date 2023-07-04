@@ -64,6 +64,9 @@ var help = &command.Command{
 			} else if args == "2" || args == "media" {
 				result := generateHelp(ctx.Prefix, constant.MEDIA_CATEGORY, cmdMap)
 				return ctx.GenerateReplyMessage(result)
+			} else if args == "3" || args == "utility" {
+				result := generateHelp(ctx.Prefix, constant.UTILITY_CATEGORY, cmdMap)
+				return ctx.GenerateReplyMessage(result)
 			} else {
 				var listMenu string
 				var index = 1
