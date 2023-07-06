@@ -46,6 +46,7 @@ func main() {
 		WithCommandLog:              true,
 		AllowFromGroup:              true,
 		AllowFromPrivate:            true,
+		CommandSuggestion:           true,
 		CommandResponseCacheTimeout: time.Minute * 15,
 		SendMessageTimeout:          time.Second * 15,
 	}

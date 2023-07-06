@@ -21,7 +21,7 @@ func init() {
 
 var downloader = &command.Command{
 	Name:        "downloader",
-	Aliases:     []string{"down", "get", "unduh", "g"},
+	Aliases:     []string{"down", "get", "unduh", "g", "yt", "youtube", "fb", "facebook", "ig", "instagram", "tk", "tiktok", "tw", "twitter"},
 	Description: "Download media based on Url",
 	Category:    "media",
 	RunFunc: func(ctx *command.RunFuncContext) *waProto.Message {

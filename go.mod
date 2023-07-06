@@ -10,7 +10,7 @@ require (
 	github.com/go-co-op/gocron v1.29.0
 	github.com/go-resty/resty/v2 v2.7.0
 	github.com/google/uuid v1.3.0
-	github.com/itzngga/Roxy v0.0.0-20230705090855-049b39aa9c68
+	github.com/itzngga/Roxy v0.0.0-20230706070711-bfa55257c531
 	github.com/joho/godotenv v1.5.1
 	github.com/mattn/go-sqlite3 v1.14.17
 	github.com/rainu/go-command-chain v0.4.0
@@ -37,6 +37,7 @@ require (
 	github.com/mdp/qrterminal/v3 v3.1.1 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
 	github.com/robfig/cron/v3 v3.0.1 // indirect
+	github.com/sajari/fuzzy v1.0.0 // indirect
 	github.com/tmthrgd/go-hex v0.0.0-20190904060850-447a3041c3bc // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/vmihailenco/msgpack/v5 v5.3.5 // indirect

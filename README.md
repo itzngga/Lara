@@ -10,3 +10,61 @@
 </p>
 
 # Lara
+Whatsapp Bot Implementation of [Roxy](https://github/itzngga/Roxy)
+
+## Requirements
+- ffmpeg binary
+- imagemagick binary
+- libwebp binary
+- tesseract ocr binary (indonesian lang included)
+
+## How To
+### setup .env
+```shell
+SQLITE_FILE=LARA.DB
+```
+### Run the project
+```go
+go run main.go
+```
+
+## Commands
+#### General
+| OK |              Feature              |
+|:--:|:---------------------------------:|
+| ✅  |             Help Menu             |
+| ✅  |           Speed Latency           |
+
+#### Media
+| OK |        Feature         |
+|:--:|:----------------------:|
+| ✅  |   Youtube Downloader   |
+| ✅  |   Tiktok Downloader    |
+| ✅  |   Twitter Downloader   |
+| ✅  |  Facebook Downloader   |
+| ✅  |  Instagram Downloader  |
+| ✅  |  Image To Text (OCR)   |
+| ✅  | Image/Video to Sticker |
+| ✅  | Watermark for Sticker  |
+
+#### Utility
+| OK |     Feature      |
+|:--:|:----------------:|
+| ✅  |  Hidetag Group   |
+| ✅  | React to Message |
+| ✅  | Schedule Message |
+
+## Roadmap
+| OK |                       Target                        |
+|:--:|:---------------------------------------------------:|
+| ❌  |   Bot Utilites<br/> Kick, Add, Join Group, etc..    |
+| ❌  |        Games<br/>TicTacToe, Akinator, etc..         |
+|  ❌  | Fun Media Commands<br/> Anime Pics, Islamics, etc.. |
+|  ❌  |               Sticker To Image/Video                |
+
+
+## License
+[GNU](https://github.com/itzngga/Lara/blob/master/LICENSE)
+
+## Contribute
+Pull Request are pleased to
