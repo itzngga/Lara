@@ -10,7 +10,7 @@ require (
 	github.com/go-co-op/gocron v1.29.0
 	github.com/go-resty/resty/v2 v2.7.0
 	github.com/google/uuid v1.3.0
-	github.com/itzngga/Roxy v0.0.0-20230701151740-04b70478a7f3
+	github.com/itzngga/Roxy v0.0.0-20230705090855-049b39aa9c68
 	github.com/joho/godotenv v1.5.1
 	github.com/mattn/go-sqlite3 v1.14.17
 	github.com/rainu/go-command-chain v0.4.0

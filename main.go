@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/itzngga/Lara/conf"
+	"github.com/itzngga/Lara/repo"
 	_ "github.com/itzngga/Lara/src/cmd"
 	"log"
 	"time"
@@ -31,6 +32,12 @@ func init() {
 
 func main() {
 	bunDB := conf.NewSqliteDB()
+
+	reminderRepository := repo.NewReminderRepository(bunDB)
+	wmRepository := repo.NewWMRepository(bunDB)
+
+	repo.ReminderRepository = reminderRepository
+	repo.WMRepository = wmRepository
 
 	roxyOptions := options.Options{
 		StoreMode:                   "sqlite",

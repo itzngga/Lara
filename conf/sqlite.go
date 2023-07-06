@@ -8,6 +8,7 @@ import (
 	"github.com/uptrace/bun"
 	"github.com/uptrace/bun/dialect/sqlitedialect"
 	"github.com/uptrace/bun/driver/sqliteshim"
+	"log"
 	"os"
 	"time"
 )
@@ -28,13 +29,20 @@ func NewSqliteDB() *bun.DB {
 	sqliteDB = bun.NewDB(sqldb, sqlitedialect.New())
 	sqliteDB.SetMaxOpenConns(1)
 
+	MigrateTables(&entity.ReminderEntity{}, &entity.WMEntity{})
+
+	return sqliteDB
+}
+
+func MigrateTables(values ...interface{}) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*15)
 	defer cancel()
 
-	if _, err := sqliteDB.NewCreateTable().Model(&entity.ReminderEntity{}).IfNotExists().Exec(ctx); err != nil {
-		fmt.Println(err)
-		return sqliteDB
+	for _, value := range values {
+		if _, err := sqliteDB.NewCreateTable().Model(value).IfNotExists().Exec(ctx); err != nil {
+			log.Fatal(err)
+		}
 	}
 
-	return sqliteDB
+	return
 }

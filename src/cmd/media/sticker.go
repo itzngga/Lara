@@ -2,7 +2,11 @@ package media
 
 import (
 	"bytes"
+	"github.com/itzngga/Lara/repo"
 	"github.com/itzngga/Lara/src/cmd/constant"
+	util2 "github.com/itzngga/Lara/util"
+	"github.com/itzngga/Lara/util/metadata"
+	"github.com/itzngga/Lara/util/scrapper"
 	"github.com/itzngga/Roxy/command"
 	"github.com/itzngga/Roxy/embed"
 	"github.com/itzngga/Roxy/util"
@@ -36,12 +40,35 @@ var sticker = &command.Command{
 }
 
 func StickerVideo(ctx *command.RunFuncContext, video *waProto.VideoMessage) *waProto.Message {
+	ctx.SendEmoji("👌")
+
 	data, err := ctx.Client.Download(video)
 	if err != nil {
 		return ctx.GenerateReplyMessage("error: " + err.Error())
 	}
 
-	resultData, err := cli.ExecPipeline("ffmpeg", data,
+	exifFile := "temp/" + util2.MakeMD5UUID() + ".exif"
+	webpFile := "temp/" + util2.MakeMD5UUID() + ".webp"
+
+	var exif []byte
+	if wm, err := repo.WMRepository.GetWMByJid(ctx.MessageInfo.Sender.ToNonAD().String()); wm.JID != "" || err != nil {
+		exif = metadata.CreateMetadata(metadata.StickerMetadata{
+			Name:      wm.StickerName,
+			Publisher: wm.StickerPublisher,
+		})
+	} else {
+		exif = metadata.CreateMetadata(metadata.StickerMetadata{
+			Name:      "Sticker",
+			Publisher: "Roxy",
+		})
+	}
+
+	err = os.WriteFile(exifFile, exif, os.ModePerm)
+	if err != nil {
+		return ctx.GenerateReplyMessage("error: " + err.Error())
+	}
+
+	_, err = cli.ExecPipeline("ffmpeg", data,
 		"-y", "-hide_banner", "-loglevel", "error",
 		"-i", "pipe:0", "-f", "mp4",
 		"-ss", "00:00:00", "-t", "00:00:15",
@@ -50,43 +77,97 @@ func StickerVideo(ctx *command.RunFuncContext, video *waProto.VideoMessage) *waP
 		"-q:v", "60", "-loop", "0",
 		"-preset", "picture", "-an", "-fps_mode", "auto",
 		"-f", "webp",
-		"pipe:1",
+		webpFile,
 	)
+	if err != nil {
+		return ctx.GenerateReplyMessage("error: " + err.Error())
+	}
+
+	err = cmdchain.Builder().
+		Join("webpmux", "-set", "exif", exifFile, webpFile, "-o", webpFile).
+		Finalize().Run()
+	if err != nil {
+		return ctx.GenerateReplyMessage("error: " + err.Error())
+	}
+
+	webp, err := ctx.UploadStickerMessageFromPath(webpFile)
 	if err != nil {
 		return ctx.GenerateReplyMessage("error: " + err.Error())
 	}
 
 	defer func() {
 		data = nil
-		resultData = nil
+
+		os.Remove(exifFile)
+		os.Remove(webpFile)
+		exif = nil
+		webp = nil
 	}()
 
-	return ctx.GenerateReplyMessage(resultData)
+	return ctx.GenerateReplyMessage(webp)
 }
 func StickerImage(ctx *command.RunFuncContext, img *waProto.ImageMessage) *waProto.Message {
+	defer scrapper.TimeElapsed("Sticker")()
+
+	ctx.SendEmoji("👌")
+
 	data, err := ctx.Client.Download(img)
 	if err != nil {
 		return ctx.GenerateReplyMessage("error: " + err.Error())
 	}
 
 	reader := bytes.NewReader(data)
-	writer := bytes.NewBuffer(nil)
+	exifFile := "temp/" + util2.MakeMD5UUID() + ".exif"
+	webpFile := "temp/" + util2.MakeMD5UUID() + ".webp"
 
-	defer func() {
-		reader = nil
-		writer = nil
-		data = nil
-	}()
+	var exif []byte
+	if wm, err := repo.WMRepository.GetWMByJid(ctx.MessageInfo.Sender.ToNonAD().String()); wm.JID != "" || err != nil {
+		exif = metadata.CreateMetadata(metadata.StickerMetadata{
+			Name:      wm.StickerName,
+			Publisher: wm.StickerPublisher,
+		})
+	} else {
+		exif = metadata.CreateMetadata(metadata.StickerMetadata{
+			Name:      "Sticker",
+			Publisher: "Roxy",
+		})
+	}
+
+	err = os.WriteFile(exifFile, exif, os.ModePerm)
+	if err != nil {
+		return ctx.GenerateReplyMessage("error: " + err.Error())
+	}
 
 	err = cmdchain.Builder().
 		Join("convert", "-", "-resize", "512x512", "-background", "black", "-compose", "Copy", "-gravity", "center", "-extent", "512x512", "-quality", "100", "-").
 		WithInjections(reader).ForwardError().
-		Join("cwebp", "-quiet", "-mt", "-exact", "-q", "100", "-m", "6", "-alpha_q", "100", "-o", "-", "--", "-").
-		WithOutputForks(writer).WithErrorForks(os.Stderr).
+		Join("cwebp", "-quiet", "-mt", "-exact", "-q", "100", "-m", "6", "-alpha_q", "100", "-o", webpFile, "--", "-").DiscardStdOut().
 		Finalize().WithError(os.Stderr).Run()
 	if err != nil {
 		return ctx.GenerateReplyMessage("error: " + err.Error())
 	}
 
-	return ctx.GenerateReplyMessage(writer.Bytes())
+	err = cmdchain.Builder().
+		Join("webpmux", "-set", "exif", exifFile, webpFile, "-o", webpFile).
+		Finalize().Run()
+	if err != nil {
+		return ctx.GenerateReplyMessage("error: " + err.Error())
+	}
+
+	webp, err := ctx.UploadStickerMessageFromPath(webpFile)
+	if err != nil {
+		return ctx.GenerateReplyMessage("error: " + err.Error())
+	}
+
+	defer func() {
+		reader = nil
+		data = nil
+
+		os.Remove(exifFile)
+		os.Remove(webpFile)
+		exif = nil
+		webp = nil
+	}()
+
+	return ctx.GenerateReplyMessage(webp)
 }
