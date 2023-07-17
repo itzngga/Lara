@@ -52,7 +52,8 @@ var schedule = &command.Command{
 
 		ctx.SendReplyMessage("Success scheduling message every " + util.HumanizeDuration(timeDuration) + fmt.Sprintf("\n\nTo stop, do *%s%s stop*", ctx.Prefix, ctx.CurrentCommand.Name))
 		job, _ := cron.Every(timeDuration).Tag(ctx.Number).Do(func() {
-			ctx.SendReplyMessage(captured)
+			ctx.SendMessage(captured)
+			return
 		})
 
 		return ctx.GenerateReplyMessage(job.Tag)

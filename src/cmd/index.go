@@ -4,6 +4,7 @@ import (
 	"github.com/itzngga/Lara/src/cmd/constant"
 	_ "github.com/itzngga/Lara/src/cmd/general"
 	_ "github.com/itzngga/Lara/src/cmd/media"
+	_ "github.com/itzngga/Lara/src/cmd/moderation"
 	_ "github.com/itzngga/Lara/src/cmd/utility"
 	"github.com/itzngga/Roxy/embed"
 )

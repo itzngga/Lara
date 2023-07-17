@@ -40,6 +40,8 @@ var sticker = &command.Command{
 }
 
 func StickerVideo(ctx *command.RunFuncContext, video *waProto.VideoMessage) *waProto.Message {
+	defer scrapper.TimeElapsed("Sticker Video")()
+
 	ctx.SendEmoji("👌")
 
 	data, err := ctx.Client.Download(video)
@@ -107,7 +109,7 @@ func StickerVideo(ctx *command.RunFuncContext, video *waProto.VideoMessage) *waP
 	return ctx.GenerateReplyMessage(webp)
 }
 func StickerImage(ctx *command.RunFuncContext, img *waProto.ImageMessage) *waProto.Message {
-	defer scrapper.TimeElapsed("Sticker")()
+	defer scrapper.TimeElapsed("Sticker Image")()
 
 	ctx.SendEmoji("👌")
 
@@ -163,6 +165,59 @@ func StickerImage(ctx *command.RunFuncContext, img *waProto.ImageMessage) *waPro
 		reader = nil
 		data = nil
 
+		os.Remove(exifFile)
+		os.Remove(webpFile)
+		exif = nil
+		webp = nil
+	}()
+
+	return ctx.GenerateReplyMessage(webp)
+}
+
+func StickerWM(ctx *command.RunFuncContext) *waProto.Message {
+	defer scrapper.TimeElapsed("Sticker WM")()
+
+	ctx.SendEmoji("👌")
+
+	exifFile := "temp/" + util2.MakeMD5UUID() + ".exif"
+	webpFile := "temp/" + util2.MakeMD5UUID() + ".webp"
+
+	_, err := ctx.DownloadToFile(true, webpFile)
+	if err != nil {
+		return ctx.GenerateReplyMessage("error: " + err.Error())
+	}
+
+	var exif []byte
+	if wm, err := repo.WMRepository.GetWMByJid(ctx.MessageInfo.Sender.ToNonAD().String()); wm.JID != "" || err != nil {
+		exif = metadata.CreateMetadata(metadata.StickerMetadata{
+			Name:      wm.StickerName,
+			Publisher: wm.StickerPublisher,
+		})
+	} else {
+		exif = metadata.CreateMetadata(metadata.StickerMetadata{
+			Name:      "Sticker",
+			Publisher: "Roxy",
+		})
+	}
+
+	err = os.WriteFile(exifFile, exif, os.ModePerm)
+	if err != nil {
+		return ctx.GenerateReplyMessage("error: " + err.Error())
+	}
+
+	err = cmdchain.Builder().
+		Join("webpmux", "-set", "exif", exifFile, webpFile, "-o", webpFile).
+		Finalize().Run()
+	if err != nil {
+		return ctx.GenerateReplyMessage("error: " + err.Error())
+	}
+
+	webp, err := ctx.UploadStickerMessageFromPath(webpFile)
+	if err != nil {
+		return ctx.GenerateReplyMessage("error: " + err.Error())
+	}
+
+	defer func() {
 		os.Remove(exifFile)
 		os.Remove(webpFile)
 		exif = nil

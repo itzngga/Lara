@@ -120,4 +120,28 @@ Balas nomor urutan quality untuk mendownload, contoh:
 *1* untuk memilih quality pertama
 ======================
 `
+	PREMIUM_LIST_ALL_TEMPLATE = `
+*── 「 PREMIUM 」 ──*
+
+======================
+*Total*: [total]
+*Page*: [page]
+======================
+
+[content]
+
+*── 「 [page] of [total_page] 」 ──*
+`
+	ADMIN_LIST_ALL_TEMPLATE = `
+*── 「 ADMIN 」 ──*
+
+======================
+*Total*: [total]
+*Page*: [page]
+======================
+
+[content]
+
+*── 「 [page] of [total_page] 」 ──*
+`
 )

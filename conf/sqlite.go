@@ -29,7 +29,7 @@ func NewSqliteDB() *bun.DB {
 	sqliteDB = bun.NewDB(sqldb, sqlitedialect.New())
 	sqliteDB.SetMaxOpenConns(1)
 
-	MigrateTables(&entity.ReminderEntity{}, &entity.WMEntity{})
+	MigrateTables(&entity.ReminderEntity{}, &entity.WMEntity{}, &entity.AdminEntity{}, &entity.PremiumEntity{})
 
 	return sqliteDB
 }

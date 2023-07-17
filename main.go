@@ -34,9 +34,13 @@ func main() {
 	bunDB := conf.NewSqliteDB()
 
 	reminderRepository := repo.NewReminderRepository(bunDB)
+	premiumRepository := repo.NewPremiumRepository(bunDB)
+	adminRepository := repo.NewAdminRepository(bunDB)
 	wmRepository := repo.NewWMRepository(bunDB)
 
 	repo.ReminderRepository = reminderRepository
+	repo.PremiumRepository = premiumRepository
+	repo.AdminRepository = adminRepository
 	repo.WMRepository = wmRepository
 
 	roxyOptions := options.Options{

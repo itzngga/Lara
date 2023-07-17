@@ -3,6 +3,7 @@ package media
 import (
 	"fmt"
 	"github.com/itzngga/Lara/src/cmd/constant"
+	"github.com/itzngga/Lara/src/mid"
 	"github.com/itzngga/Lara/util"
 	"github.com/itzngga/Lara/util/scrapper"
 	"github.com/itzngga/Roxy/command"
@@ -23,6 +24,7 @@ var downloader = &command.Command{
 	Name:        "downloader",
 	Aliases:     []string{"down", "get", "unduh", "g", "yt", "youtube", "fb", "facebook", "ig", "instagram", "tk", "tiktok", "tw", "twitter"},
 	Description: "Download media based on Url",
+	Middleware:  mid.PremiumMiddleware,
 	Category:    "media",
 	RunFunc: func(ctx *command.RunFuncContext) *waProto.Message {
 		var link string
