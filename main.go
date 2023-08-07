@@ -51,6 +51,8 @@ func main() {
 		AllowFromGroup:              true,
 		AllowFromPrivate:            true,
 		CommandSuggestion:           true,
+		HistorySync:                 true,
+		OnlyFromSelf:                true,
 		CommandResponseCacheTimeout: time.Minute * 15,
 		SendMessageTimeout:          time.Second * 15,
 	}

@@ -31,6 +31,12 @@ func NewSqliteDB() *bun.DB {
 
 	MigrateTables(&entity.ReminderEntity{}, &entity.WMEntity{}, &entity.AdminEntity{}, &entity.PremiumEntity{})
 
+	_, err = sqliteDB.Exec("PRAGMA main.auto_vacuum = 1;")
+	if err != nil {
+		fmt.Println(err)
+		return nil
+	}
+
 	return sqliteDB
 }
 

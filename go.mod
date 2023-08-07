@@ -9,7 +9,7 @@ require (
 	github.com/go-co-op/gocron v1.29.0
 	github.com/go-resty/resty/v2 v2.7.0
 	github.com/google/uuid v1.3.0
-	github.com/itzngga/Roxy v0.0.0-20230706070711-bfa55257c531
+	github.com/itzngga/Roxy v1.0.4-0.20230807065446-ffaa8852e804
 	github.com/joho/godotenv v1.5.1
 	github.com/mattn/go-sqlite3 v1.14.17
 	github.com/rainu/go-command-chain v0.4.0
@@ -18,16 +18,18 @@ require (
 	github.com/uptrace/bun/driver/sqliteshim v1.1.14
 	github.com/valyala/fasttemplate v1.2.2
 	github.com/xhit/go-str2duration/v2 v2.1.0
-	go.mau.fi/whatsmeow v0.0.0-20230616194828-be0edabb0bf3
+	go.mau.fi/whatsmeow v0.0.0-20230718190209-efef6f1cec8e
 	google.golang.org/protobuf v1.30.0
 )
 
 require (
 	filippo.io/edwards25519 v1.0.0 // indirect
 	github.com/alitto/pond v1.8.3 // indirect
+	github.com/andybalholm/brotli v1.0.5 // indirect
 	github.com/andybalholm/cascadia v1.3.2 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.2 // indirect
+	github.com/goccy/go-json v0.10.2 // indirect
 	github.com/google/pprof v0.0.0-20230602150820-91b7bce49751 // indirect
 	github.com/gorilla/websocket v1.5.0 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect

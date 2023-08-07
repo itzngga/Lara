@@ -95,8 +95,9 @@ var admin = &command.Command{
 					target = mentioned[0]
 				}
 
-				jid := util.ParseUserJid(constant.NumberRegex.FindString(target))
-				if jid.String() == "" {
+				jid, err := util.ParseUserJid(constant.NumberRegex.FindString(target))
+				if jid.String() == "" || err != nil {
+
 					return ctx.GenerateReplyMessage("error: invalid number")
 				}
 
@@ -136,8 +137,8 @@ var admin = &command.Command{
 					target = mentioned[0]
 				}
 
-				jid := util.ParseUserJid(constant.NumberRegex.FindString(target))
-				if jid.String() == "" {
+				jid, err := util.ParseUserJid(constant.NumberRegex.FindString(target))
+				if jid.String() == "" || err != nil {
 					return ctx.GenerateReplyMessage("error: invalid number")
 				}
 
