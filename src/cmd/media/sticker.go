@@ -141,7 +141,7 @@ func StickerImage(ctx *command.RunFuncContext, img *waProto.ImageMessage) *waPro
 	}
 
 	err = cmdchain.Builder().
-		Join("convert", "-", "-resize", "512x512", "-background", "black", "-compose", "Copy", "-gravity", "center", "-extent", "512x512", "-quality", "100", "-").
+		Join("convert", "-", "-resize", "512x512", "-background", "none", "-compose", "Copy", "-gravity", "center", "-extent", "512x512", "-quality", "100", "png:-").
 		WithInjections(reader).ForwardError().
 		Join("cwebp", "-quiet", "-mt", "-exact", "-q", "100", "-m", "6", "-alpha_q", "100", "-o", webpFile, "--", "-").DiscardStdOut().
 		Finalize().WithError(os.Stderr).Run()
